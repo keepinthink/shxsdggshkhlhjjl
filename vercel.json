@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/*.go", "use": "@vercel/go" }
+  ],
+  "routes": [
+    { "src": "/qwerty/(.*)", "dest": "/api/qwerty?path=$1" },
+    { "src": "/api/qwerty", "dest": "/api/qwerty" },
+    { "src": "/api/qwerty/(.*)", "dest": "/api/qwerty/$1" }
+  ]
+}
