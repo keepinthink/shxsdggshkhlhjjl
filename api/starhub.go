@@ -4,38 +4,26 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
-	"os"
 	"strings"
 )
 
-func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
+// Handler akan dipanggil oleh Vercel
+func Handler(w http.ResponseWriter, r *http.Request) {
+	// Ambil path setelah /starhub/
+	path := strings.TrimPrefix(r.URL.Path, "/starhub/")
+	if path == "" {
+		http.Error(w, "Path tidak boleh kosong", http.StatusBadRequest)
+		return
 	}
 
-	http.HandleFunc("/starhub/", func(w http.ResponseWriter, r *http.Request) {
-		// Ambil path setelah /starhub/
-		path := strings.TrimPrefix(r.URL.Path, "/starhub/")
-		if path == "" {
-			http.Error(w, "Path tidak boleh kosong", http.StatusBadRequest)
-			return
-		}
+	// Buat URL target via CORS Buster
+	targetURL := "https://cors-buster.fly.dev/https://ucdn.starhubgo.com/" + path
 
-		// Buat URL target via CORS Buster
-		targetURL := "https://cors-buster.fly.dev/https://ucdn.starhubgo.com/" + path
-
-		proxyRequest(w, r, targetURL)
-	})
-
-	log.Printf("Server berjalan di port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	proxyRequest(w, r, targetURL)
 }
 
 func proxyRequest(w http.ResponseWriter, r *http.Request, target string) {
 	client := &http.Client{
-		// Handle redirect 302
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// Ubah URL redirect tetap melalui CORS Buster
 			if len(via) >= 10 {
@@ -56,7 +44,6 @@ func proxyRequest(w http.ResponseWriter, r *http.Request, target string) {
 		return
 	}
 
-	// Set custom headers untuk bypass 403
 	req.Header.Set("User-Agent", "ExoPlayerDemo/2.15.1 (Linux; Android 13) ExoPlayerLib/2.15.1")
 	req.Header.Set("X-Forwarded-For", "203.117.83.181")
 
