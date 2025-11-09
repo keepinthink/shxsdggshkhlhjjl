@@ -1,13 +1,11 @@
-package main
+package handler
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"strings"
 )
 
-// Handler akan dipanggil oleh Vercel
 func Handler(w http.ResponseWriter, r *http.Request) {
 	// Ambil path setelah /starhub/
 	path := strings.TrimPrefix(r.URL.Path, "/starhub/")
